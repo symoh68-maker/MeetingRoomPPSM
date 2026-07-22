@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Tempahan Bilik Persidangan PPSM</title>
+    
+    <!-- Google Fonts: Inter (Sangat sesuai untuk rekaan Korporat) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- FLATPICKR CSS (Untuk Kalendar Tarikh) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    
+    <style>
+        :root {
+            --primary: #1e3a8a; /* Navy Blue */
+            --primary-light: #2563eb; /* Royal Blue */
+            --primary-bg: #eff6ff; /* Light Blue Background */
+            --text-dark: #0f172a; /* Slate 900 */
+            --text-muted: #64748b; /* Slate 500 */
+            --bg-body: #f8fafc; /* Slate 50 */
+            --bg-card: #ffffff;
+            --border: #e2e8f0; /* Slate 200 */
+            --danger: #dc2626;
+            --danger-bg: #fef2f2;
+        }
+        
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body);
+            margin: 0; 
+            padding: 40px 15px; 
+            color: var(--text-dark); 
+            min-height: 100vh; 
+        }
+        
+        .container { 
+            max-width: 1100px; 
+            margin: auto; 
+            background: var(--bg-card); 
+            padding: 40px; 
+            border-radius: 8px; 
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border);
+        }
+        
+        .header-title {
+            text-align: left;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header-title h2 { 
+            margin: 0;
+            color: var(--text-dark); 
+            font-weight: 700; 
+            font-size: 24px; 
+            letter-spacing: -0.5px;
+        }
+
+        .header-logo {
+            background-color: var(--primary);
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        
+        /* TAB STYLING - Corporate Style (Underline) */
+        .tabs { 
+            display: flex; 
+            border-bottom: 2px solid var(--border); 
+            margin-bottom: 30px; 
+        }
+        .tab { 
+            padding: 12px 24px; 
+            font-weight: 500; 
+            color: var(--text-muted); 
+            cursor: pointer; 
+            transition: all 0.2s; 
+            border-bottom: 3px solid transparent; 
+            margin-bottom: -2px; /* Overlap with border */
+            font-size: 15px;
+        }
+        .tab i { margin-right: 8px; }
+        .tab:hover:not(.active) { color: var(--text-dark); background-color: var(--bg-body); }
+        .tab.active { 
+            color: var(--primary-light); 
+            border-bottom-color: var(--primary-light); 
+            font-weight: 600;
+        }
+        
+        .tab-content { display: none; animation: fadeIn 0.3s ease; }
+        .tab-content.active { display: block; }
+        @keyframes fadeIn { 0% { opacity: 0; } 100% { opacity: 1; } }
+        
+        /* BORANG (FORM) - Clean Input Fields */
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-top: 0;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+        }
+
+        .form-group { margin-bottom: 20px; position: relative; }
+        label { display: block; font-weight: 500; margin-bottom: 6px; color: var(--text-dark); font-size: 13px; }
+        
+        input[type="text"], input[type="date"], input[type="time"], input[type="month"], select { 
+            width: 100%; padding: 10px 12px 10px 40px; border: 1px solid var(--border); 
+            border-radius: 6px; box-sizing: border-box; font-family: 'Inter', sans-serif; 
+            font-size: 14px; transition: 0.2s; background: var(--bg-card); color: var(--text-dark);
+            appearance: auto;
+        }
+        input:focus, select:focus { 
+            border-color: var(--primary-light); outline: none; 
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); 
+        }
+        .input-icon { 
+            position: absolute; left: 14px; top: 34px; color: #94a3b8; 
+            font-size: 14px; pointer-events: none; transition: 0.2s; 
+        }
+        input:focus + .input-icon, select:focus ~ .input-icon { color: var(--primary-light); }
+        
+        /* BUTANG (BUTTON) - Professional Solid Colors */
+        button { 
+            font-family: 'Inter', sans-serif; background: var(--primary-light); color: white; 
+            border: none; padding: 12px 20px; cursor: pointer; border-radius: 6px; 
+            font-size: 14px; font-weight: 500; transition: all 0.2s; 
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+        }
+        button:hover { background: var(--primary); }
+        button:disabled { background: #cbd5e0; cursor: not-allowed; }
+        
+        /* TABLE STYLING - Minimalist Data Grid */
+        table.list-table { 
+            width: 100%; border-collapse: collapse; margin-top: 10px; 
+            border-radius: 6px; overflow: hidden; border: 1px solid var(--border);
+        }
+        table.list-table th, table.list-table td { 
+            padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 14px;
+        }
+        table.list-table th { 
+            background: var(--bg-body); color: var(--text-muted); font-weight: 600; 
+            text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; 
+        }
+        table.list-table tbody tr { transition: 0.15s; background: var(--bg-card); }
+        table.list-table tbody tr:hover { background-color: var(--bg-body); }
+        
+        .btn-delete { 
+            background: white; border: 1px solid var(--border); color: var(--danger);
+            font-size: 12px; padding: 6px 12px; width: auto; font-weight: 500;
+        }
+        .btn-delete:hover { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+        
+        .time-badge { 
+            background: var(--primary-bg); padding: 4px 8px; border-radius: 4px; 
+            font-size: 12px; font-weight: 600; color: var(--primary-light); border: 1px solid #bfdbfe;
+        }
+
+        /* CALENDAR STYLING - Outlook/Corporate Style */
+        .calendar-wrapper { width: 100%; margin-top: 20px; }
+        .month-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+        .month-box h4 { 
+            margin: 0; background: var(--bg-body); color: var(--text-dark); 
+            padding: 15px 20px; font-size: 16px; font-weight: 600; border-bottom: 1px solid var(--border);
+        }
+        .cal-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+        .cal-table th { 
+            background: var(--bg-card); color: var(--text-muted); font-weight: 600; 
+            padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 12px; 
+        }
+        .cal-table td { 
+            min-height: 120px; height: 120px; vertical-align: top; 
+            border: 1px solid var(--border); padding: 6px; 
+        }
+        .cal-table td:hover { background: var(--bg-body); }
+        
+        .date-num { 
+            font-weight: 500; display: block; margin-bottom: 6px; font-size: 14px; color: var(--text-muted); 
+            text-align: right; padding-right: 4px;
+        }
+        .weekend { background-color: var(--bg-body) !important; }
+        
+        /* Block Tempahan Rasmi (Corporate Event Block) */
+        .booking-desc { 
+            display: block; 
+            background: var(--primary-bg); 
+            border-left: 3px solid var(--primary-light);
+            color: var(--text-dark); 
+            padding: 6px 8px; 
+            margin-bottom: 6px; 
+            border-radius: 0 4px 4px 0; 
+            font-size: 11px;
+            cursor: pointer; 
+            line-height: 1.3;
+            transition: all 0.2s;
+        }
+        .booking-desc:hover { background: #dbeafe; }
+        .booking-time { font-weight: 600; color: var(--primary-light); display: block; margin-bottom: 2px; }
+        .booking-title { font-weight: 500; display: block; margin-bottom: 2px; }
+        .booking-person { color: var(--text-muted); display: block; font-size: 10px; }
+        
+        .action-buttons { margin-top: 10px; display: flex; gap: 10px; }
+        .btn-outline { 
+            background: transparent; color: var(--text-dark); border: 1px solid var(--border); width: auto; 
+        }
+        .btn-outline:hover { background: var(--bg-body); }
+        
+        .loading-container { text-align: center; padding: 50px 0; }
+        .loading-text { color: var(--text-muted); font-weight: 500; font-size: 16px; margin-top: 15px; }
+        .fa-spinner { font-size: 30px; color: var(--primary-light); }
+        
+        @media print {
+            @page { size: A4 landscape; margin: 1cm; }
+            body { background: white; padding: 0; }
+            .container { box-shadow: none; max-width: 100%; border: none; padding: 0; }
+            .header-title, .tabs, .form-group, .action-buttons, #tempahan, #senarai, #loadingIndicator { display: none !important; }
+            .tab-content { display: block !important; }
+            .month-box { border: none; box-shadow: none; padding: 0; }
+            .cal-table td { border: 1px solid #000; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header-title">
+        <div class="header-logo"><i class="fas fa-building"></i></div>
+        <h2>Sistem Tempahan Bilik PPSM</h2>
+    </div>
+    
+    <div class="tabs">
+        <div class="tab active" id="t-tempahan" onclick="showTab('tempahan', 't-tempahan')">Borang Tempahan</div>
+        <div class="tab" id="t-senarai" onclick="showTab('senarai', 't-senarai')">Rekod Tempahan</div>
+        <div class="tab" id="t-cetak" onclick="showTab('cetak', 't-cetak')">Kalendar</div>
+    </div>
+
+    <div id="loadingIndicator" class="loading-container">
+        <i class="fas fa-circle-notch fa-spin"></i>
+        <div class="loading-text" id="loadingMsg">Memuatkan Pangkalan Data...</div>
+    </div>
+
+    <!-- TAB 1: Borang Tempahan -->
+    <div id="tempahan" class="tab-content active" style="display:none;">
+        <h3 class="section-title">Maklumat Mesyuarat / Persidangan</h3>
+        <form id="bookingForm">
+            <div class="form-group">
+                <label for="nama">Nama Pemohon</label>
+                <i class="fas fa-user input-icon"></i>
+                <input type="text" id="nama" placeholder="Sila masukkan nama penuh" required>
+            </div>
+            <div class="form-group">
+                <label for="tujuan">Tujuan / Perkara</label>
+                <i class="fas fa-align-left input-icon"></i>
+                <input type="text" id="tujuan" required maxlength="50" placeholder="Contoh: Mesyuarat Pengurusan Suku Tahun ke-3">
+            </div>
+            <div class="form-group">
+                <label for="tarikh">Tarikh Penggunaan</label>
+                <i class="fas fa-calendar input-icon"></i>
+                <!-- Input Tarikh (Flatpickr) -->
+                <input type="text" id="tarikh" placeholder="Pilih Tarikh (Isnin - Jumaat)" required>
+            </div>
+            
+            <div style="display: flex; gap: 20px;">
+                <div class="form-group" style="flex: 1;">
+                    <label for="masa_mula">Masa Mula</label>
+                    <i class="fas fa-clock input-icon"></i>
+                    <select id="masa_mula" required></select>
+                </div>
+                <div class="form-group" style="flex: 1;">
+                    <label for="masa_tamat">Masa Tamat</label>
+                    <i class="fas fa-hourglass-end input-icon"></i>
+                    <select id="masa_tamat" required></select>
+                </div>
+            </div>
+            <button type="submit" id="submitBtn"><i class="fas fa-paper-plane"></i> Hantar Permohonan</button>
+        </form>
+    </div>
+
+    <!-- TAB 2: Senarai Rekod -->
+    <div id="senarai" class="tab-content">
+        <h3 class="section-title">Rekod Keseluruhan Penggunaan Bilik</h3>
+        <table class="list-table">
+            <thead>
+                <tr>
+                    <th>Tarikh</th>
+                    <th>Tempoh Masa</th>
+                    <th>Pemohon</th>
+                    <th>Tujuan</th>
+                    <th style="text-align:center;">Tindakan</th>
+                </tr>
+            </thead>
+            <tbody id="senaraiBody"></tbody>
+        </table>
+    </div>
+
+    <!-- TAB 3: Kalendar -->
+    <div id="cetak" class="tab-content">
+        <h3 class="section-title">Jadual Penggunaan Bulanan</h3>
+        <div class="form-group" style="background: var(--bg-body); padding: 20px; border-radius: 6px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px;">
+            <div>
+                <label for="bulan_kalendar" style="display:inline-block; margin-right:10px;">Pilih Bulan:</label>
+                <input type="month" id="bulan_kalendar" onchange="renderCalendar()" style="width: auto; display:inline-block; padding-left: 10px;">
+            </div>
+            <div class="action-buttons" style="margin: 0;">
+                <button type="button" class="btn-outline" onclick="exportCalendarToWord()"><i class="fas fa-file-word"></i> Muat Turun .DOC</button>
+                <button type="button" class="btn-outline" onclick="window.print()"><i class="fas fa-print"></i> Cetak / PDF</button>
+            </div>
+        </div>
+        <div id="calendarContainer" class="calendar-wrapper"></div>
+    </div>
+</div>
+
+<!-- SCRIPTS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    // Flatpickr untuk input tarikh
+    flatpickr("#tarikh", {
+        altInput: true, altFormat: "l, d M Y", dateFormat: "Y-m-d",
+        disable: [ function(date) { return (date.getDay() === 0 || date.getDay() === 6); } ]
+    });
+
+    // Skrip Automatik Membina Senarai Masa
+    function binaSenaraiMasa() {
+        let optionsHTML_Mula = `<option value="" disabled selected>Pilih Waktu</option>`;
+        let optionsHTML_Tamat = `<option value="" disabled selected>Pilih Waktu</option>`;
+        
+        for (let i = 8; i <= 19; i++) {
+            let hour12 = i > 12 ? i - 12 : i;
+            let ampm = i >= 12 ? "PM" : "AM";
+            
+            let val00 = (i < 10 ? "0" + i : i) + ":00";
+            let teks00 = `${hour12}:00 ${ampm}`;
+            optionsHTML_Mula += `<option value="${val00}">${teks00}</option>`;
+            optionsHTML_Tamat += `<option value="${val00}">${teks00}</option>`;
+            
+            if (i !== 19) {
+                let val30 = (i < 10 ? "0" + i : i) + ":30";
+                let teks30 = `${hour12}:30 ${ampm}`;
+                optionsHTML_Mula += `<option value="${val30}">${teks30}</option>`;
+                optionsHTML_Tamat += `<option value="${val30}">${teks30}</option>`;
+            }
+        }
+        document.getElementById('masa_mula').innerHTML = optionsHTML_Mula;
+        document.getElementById('masa_tamat').innerHTML = optionsHTML_Tamat;
+    }
+    binaSenaraiMasa(); 
+</script>
+
+<!-- FIREBASE SDK & LOGIC -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ⚠️ MASUKKAN KOD FIREBASE CONFIG ANDA DI BAWAH INI ⚠️
+    const firebaseConfig = {
+  apiKey: "AIzaSyBs6EzlUhe_9gquvgsInH9K1TYoj7xSqJo",
+  authDomain: "tempahanppsm.firebaseapp.com",
+  databaseURL: "https://tempahanppsm-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "tempahanppsm",
+  storageBucket: "tempahanppsm.firebasestorage.app",
+  messagingSenderId: "408167360834",
+  appId: "1:408167360834:web:acef1a882ee55f366040db",
+  measurementId: "G-EPKNENGEXN"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    let tempahanList = []; 
+    const namaBulan = ['Januari', 'Februari', 'Mac', 'April', 'Mei', 'Jun', 'Julai', 'Ogos', 'September', 'Oktober', 'November', 'Disember'];
+
+    async function loadData() {
+        try {
+            const querySnapshot = await getDocs(collection(db, "tempahan"));
+            tempahanList = [];
+            
+            querySnapshot.forEach((doc) => {
+                let data = doc.data();
+                data.id = doc.id; 
+                tempahanList.push(data);
+            });
+            
+            tempahanList.sort((a, b) => new Date(a.tarikh) - new Date(b.tarikh));
+            document.getElementById('loadingIndicator').style.display = 'none';
+            document.getElementById('tempahan').style.display = 'block';
+            
+            renderTable(); renderCalendar();
+        } catch (error) {
+            document.getElementById('loadingMsg').innerText = "Ralat: Gagal menyambung ke pangkalan data.";
+            document.getElementById('loadingMsg').style.color = "var(--danger)";
+            document.querySelector('.fa-circle-notch').className = "fas fa-exclamation-triangle";
+            document.querySelector('.fa-exclamation-triangle').style.color = "var(--danger)";
+        }
+    }
+
+    document.getElementById('bookingForm').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        let nama = document.getElementById('nama').value;
+        let tujuan = document.getElementById('tujuan').value;
+        let tarikh = document.getElementById('tarikh').value;
+        let masa_mula = document.getElementById('masa_mula').value;
+        let masa_tamat = document.getElementById('masa_tamat').value;
+
+        if (masa_mula >= masa_tamat) {
+            alert('Perhatian: Masa Tamat hendaklah melepasi Masa Mula.'); return;
+        }
+
+        let isOverlap = tempahanList.some(t => {
+            if (t.tarikh === tarikh) { return (masa_mula < t.masa_tamat) && (masa_tamat > t.masa_mula); }
+            return false;
+        });
+
+        if (isOverlap) { alert('Harap Maklum: Bilik telah ditempah pada slot waktu tersebut. Sila semak kalendar.'); return; }
+
+        let submitBtn = document.getElementById('submitBtn');
+        submitBtn.innerHTML = "<i class='fas fa-circle-notch fa-spin'></i> Sedang Memproses...";
+        submitBtn.disabled = true;
+
+        try {
+            let tempahanBaru = { tarikh, masa_mula, masa_tamat, nama, tujuan };
+            const docRef = await addDoc(collection(db, "tempahan"), tempahanBaru);
+            tempahanBaru.id = docRef.id;
+            
+            tempahanList.push(tempahanBaru);
+            tempahanList.sort((a, b) => new Date(a.tarikh) - new Date(b.tarikh));
+            
+            renderTable();
+            alert('Tahniah. Rekod tempahan berjaya disimpan.');
+            this.reset();
+            
+            document.getElementById('bulan_kalendar').value = tarikh.substring(0, 7);
+            renderCalendar();
+        } catch (error) {
+            alert('Ralat sistem: Gagal menyimpan maklumat.');
+        } finally {
+            submitBtn.innerHTML = "<i class='fas fa-paper-plane'></i> Hantar Permohonan";
+            submitBtn.disabled = false;
+        }
+    });
+
+    async function deleteBooking(id, nama) {
+        if (!confirm(`Padam rekod tempahan untuk pendaftaran: ${nama}?`)) return;
+        try {
+            await deleteDoc(doc(db, "tempahan", id));
+            tempahanList = tempahanList.filter(t => t.id !== id);
+            renderTable(); renderCalendar();
+        } catch (error) { alert("Ralat: Gagal memadam rekod."); }
+    }
+
+    function formatTime12Hour(time24) {
+        let [hours, minutes] = time24.split(':');
+        let hours12 = parseInt(hours) % 12 || 12;
+        let ampm = parseInt(hours) >= 12 ? 'PM' : 'AM';
+        return `${hours12}:${minutes} ${ampm}`;
+    }
+
+    function showTab(tabId, tabHeaderId) {
+        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+        if (document.getElementById('loadingIndicator').style.display === 'none') {
+            document.getElementById(tabId).classList.add('active');
+        }
+        document.getElementById(tabHeaderId).classList.add('active');
+        if(tabId === 'cetak') { renderCalendar(); }
+    }
+
+    function renderTable() {
+        let tbody = document.getElementById('senaraiBody');
+        tbody.innerHTML = '';
+        tempahanList.forEach(t => {
+            let deleteBtn = `<button class="btn-delete" onclick="deleteBooking('${t.id}', '${t.nama}')"><i class="fas fa-trash"></i> Padam</button>`;
+            tbody.innerHTML += `
+                <tr>
+                    <td><strong>${t.tarikh}</strong></td>
+                    <td><span class="time-badge">${formatTime12Hour(t.masa_mula)} - ${formatTime12Hour(t.masa_tamat)}</span></td>
+                    <td>${t.nama}</td>
+                    <td>${t.tujuan}</td>
+                    <td style="text-align:center;">${deleteBtn}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderCalendar() {
+        let calInput = document.getElementById('bulan_kalendar').value;
+        if (!calInput) return;
+
+        let [yearStr, monthStr] = calInput.split('-');
+        let year = parseInt(yearStr);
+        let m = parseInt(monthStr) - 1;
+        let container = document.getElementById('calendarContainer');
+        
+        let monthHTML = `<div class="month-box">
+            <h4>${namaBulan[m]} ${year}</h4>
+            <table class="cal-table">
+                <tr>
+                    <th style="width: 14.28%;">Ahad</th>
+                    <th style="width: 14.28%;">Isnin</th><th style="width: 14.28%;">Selasa</th>
+                    <th style="width: 14.28%;">Rabu</th><th style="width: 14.28%;">Khamis</th>
+                    <th style="width: 14.28%;">Jumaat</th><th style="width: 14.28%;">Sabtu</th>
+                </tr><tr>`;
+        
+        let firstDay = new Date(year, m, 1).getDay();
+        let daysInMonth = new Date(year, m + 1, 0).getDate();
+        for (let i = 0; i < firstDay; i++) monthHTML += `<td></td>`;
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+            let currentDate = new Date(year, m, d);
+            let dayOfWeek = currentDate.getDay(); 
+            let mFormat = String(m + 1).padStart(2, '0');
+            let dFormat = String(d).padStart(2, '0');
+            let dateStr = `${year}-${mFormat}-${dFormat}`;
+            
+            let bookingsToday = tempahanList.filter(t => t.tarikh === dateStr);
+            bookingsToday.sort((a, b) => a.masa_mula.localeCompare(b.masa_mula));
+            
+            let classNames = [];
+            if (dayOfWeek === 0 || dayOfWeek === 6) classNames.push('weekend');
+            
+            let cellContent = `<span class="date-num">${d}</span>`;
+            if (bookingsToday.length > 0) {
+                bookingsToday.forEach((b) => {
+                    cellContent += `
+                    <span class="booking-desc" title="Pemohon: ${b.nama}">
+                        <span class="booking-time">${formatTime12Hour(b.masa_mula)} - ${formatTime12Hour(b.masa_tamat)}</span>
+                        <span class="booking-title">${b.tujuan}</span>
+                        <span class="booking-person"><i class="fas fa-user-circle"></i> ${b.nama}</span>
+                    </span>`;
+                });
+            }
+            monthHTML += `<td class="${classNames.join(' ')}">${cellContent}</td>`;
+            if (dayOfWeek === 6) monthHTML += `</tr><tr>`;
+        }
+        let lastDay = new Date(year, m, daysInMonth).getDay();
+        if (lastDay !== 6) { for (let i = lastDay + 1; i <= 6; i++) monthHTML += `<td></td>`; }
+        monthHTML += `</tr></table></div>`;
+        container.innerHTML = monthHTML;
+    }
+
+    window.showTab = showTab; window.deleteBooking = deleteBooking; window.renderCalendar = renderCalendar;
+    
+    // Eksport ke Word
+    window.exportCalendarToWord = function() {
+        let calInput = document.getElementById('bulan_kalendar').value;
+        if (!calInput) return;
+        let [yearStr, monthStr] = calInput.split('-');
+        let year = parseInt(yearStr);
+        let m = parseInt(monthStr) - 1;
+
+        let htmlContent = `<div class="WordSection1" style="font-family: Arial, sans-serif;">
+            <h2 style="text-align:center; background-color: #0f172a; color: white; padding: 15px;">Jadual Penggunaan Bilik - ${namaBulan[m]} ${year}</h2>
+            <table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse; width: 100%; table-layout: fixed;">
+                <tr style="background-color: #f1f5f9; text-align: center; color: #475569;">
+                    <th style="width: 14%;">Ahad</th><th style="width: 14%;">Isnin</th><th style="width: 14%;">Selasa</th>
+                    <th style="width: 14%;">Rabu</th><th style="width: 14%;">Khamis</th><th style="width: 14%;">Jumaat</th><th style="width: 14%;">Sabtu</th>
+                </tr><tr>`;
+
+        let firstDay = new Date(year, m, 1).getDay();
+        let daysInMonth = new Date(year, m + 1, 0).getDate();
+        for (let i = 0; i < firstDay; i++) htmlContent += `<td style="height: 100px;"></td>`;
+        
+        for (let d = 1; d <= daysInMonth; d++) {
+            let dayOfWeek = new Date(year, m, d).getDay(); 
+            let dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            let bookingsToday = tempahanList.filter(t => t.tarikh === dateStr);
+            bookingsToday.sort((a, b) => a.masa_mula.localeCompare(b.masa_mula));
+            
+            let bgColor = (dayOfWeek === 0 || dayOfWeek === 6) ? "#f8fafc" : "#ffffff";
+            let cellContent = `<div style="text-align: right; color: #64748b; margin-bottom: 5px;"><strong>${d}</strong></div>`;
+            
+            bookingsToday.forEach(b => {
+                cellContent += `<div style="background-color: #eff6ff; color: #0f172a; font-size: 11px; padding: 6px; margin-bottom: 4px; border-left: 3px solid #2563eb;">
+                    <strong style="color: #2563eb;">${formatTime12Hour(b.masa_mula)} - ${formatTime12Hour(b.masa_tamat)}</strong><br>${b.tujuan}<br><i style="color: #64748b;">${b.nama}</i></div>`;
+            });
+            htmlContent += `<td style="height: 120px; vertical-align: top; background-color: ${bgColor};">${cellContent}</td>`;
+            if (dayOfWeek === 6) htmlContent += `</tr><tr>`;
+        }
+        let lastDay = new Date(year, m, daysInMonth).getDay();
+        if (lastDay !== 6) { for (let i = lastDay + 1; i <= 6; i++) htmlContent += `<td style="height: 100px;"></td>`; }
+        htmlContent += `</tr></table></div>`;
+
+        let header = `<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Kalendar</title><style>@page WordSection1 { size: 841.9pt 595.3pt; mso-page-orientation: landscape; margin: 1.0in; } div.WordSection1 { page: WordSection1; }</style></head><body>`;
+        let source = 'data:application/vnd.ms-word;charset=utf-8,' + encodeURIComponent(header + htmlContent + "</body></html>");
+        let a = document.createElement("a");
+        a.href = source; a.download = `Kalendar_Korporat_${namaBulan[m]}_${year}.doc`;
+        document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    };
+
+    window.onload = function() {
+        let today = new Date();
+        document.getElementById('bulan_kalendar').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+        loadData();
+    };
+</script>
+</body>
+</html>
